@@ -4,6 +4,11 @@ This repository combines two key analyses on genetic data using Short Tandem Rep
 1. **Ward Linkage Hierarchical Clustering**: Constructs a phylogenetic tree to visualize genetic relationships between individuals.
 2. **Genetic Similarity & Distance Matrices**: Calculates and visualizes multiple similarity and distance metrics between individuals based on their genetic profiles.
 
+
+![Example Image](sample/results.png)
+
+
+
 ## Description
 
 - **Hierarchical Clustering (Ward Linkage)**: Uses Ward's method to perform agglomerative clustering, minimizing variance within clusters. The result is displayed as a dendrogram, where the distance between branches reflects genetic dissimilarity.
