@@ -10,7 +10,7 @@ import re
 
 
 # Load your genetic data from a CSV file
-file_path = r"C:\Users\maj\Desktop\Samples_STR\tableConvert.com_nsp9tx.csv"
+file_path = r"synthatic_sTR.csv"
 data = pd.read_csv(file_path)
 
 
