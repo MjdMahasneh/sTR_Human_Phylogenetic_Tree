@@ -5,20 +5,22 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import pdist
+import re
 
 
-
-
-
-# Ward's Method:
-# Ward's method minimizes the variance within clusters. It's an agglomerative
-# clustering technique that merges clusters with the smallest increase in total
-# within-cluster variance. The height of the branches in the dendrogram shows
-# the dissimilarity (distance) between merged clusters.
 
 # Load your genetic data from a CSV file
 file_path = r"C:\Users\maj\Desktop\Samples_STR\tableConvert.com_nsp9tx.csv"
 data = pd.read_csv(file_path)
+
+
+# Shorten labels: "family-1" -> "F1", "family-2" -> "F2", etc.
+def shorten_label(lbl):
+    m = re.search(r'(\d+)', lbl)
+    if m:
+        return f'F{m.group(1)}'
+    return lbl  # fallback: keep as-is if no number found
+
 
 # Separate the Family label column from numeric STR marker columns
 label_col = 'Family'
@@ -31,13 +33,6 @@ else:
     raw_labels = data[non_numeric[0]].astype(str).tolist() if non_numeric else [str(i + 1) for i in range(len(data))]
     data_samples = data.select_dtypes(include=[np.number])
 
-# Shorten labels: "family-1" -> "F1", "family-2" -> "F2", etc.
-import re
-def shorten_label(lbl):
-    m = re.search(r'(\d+)', lbl)
-    if m:
-        return f'F{m.group(1)}'
-    return lbl  # fallback: keep as-is if no number found
 
 labels = [shorten_label(l) for l in raw_labels]
 
@@ -48,27 +43,13 @@ print(f"Clustering {data_samples.shape[0]} samples across {data_samples.shape[1]
 print(f"Sample labels: {labels}")
 
 # Perform hierarchical clustering using Ward's method
-# linked = linkage(data_samples, method='ward')
-# dist = pdist(data_samples, metric='cityblock')
-# linked = linkage(dist, method='average')
-
 dist = pdist(data_samples, metric='euclidean')
 linked = linkage(dist, method='ward')  # Ward + Euclidean is the most common combo for STR
 # Set color threshold manually — branches below this distance get unique colors
 color_thresh = linked[:, 2].max() * 0.5 # cut at 50% of max distance, adjust as needed to get desired number of clusters
 
-
-
 # Plot the dendrogram
 fig, ax = plt.subplots(figsize=(18, 9))
-# dendrogram_obj = dendrogram(linked,
-#                             orientation='top',
-#                             labels=labels,
-#                             distance_sort='descending',
-#                             show_leaf_counts=True,
-#                             ax=ax)
-
-
 dendrogram_obj = dendrogram(linked,
                             orientation='top',
                             labels=labels,
@@ -80,8 +61,6 @@ dendrogram_obj = dendrogram(linked,
 # Draw a horizontal line showing where the cut is
 ax.axhline(y=color_thresh, color='red', linestyle='--', linewidth=1.5, label=f'Cut threshold: {color_thresh:.1f}')
 ax.legend(fontsize=9)
-
-
 ax.set_title('Hierarchical Clustering Dendrogram (Between People)', fontsize=13)
 ax.set_xlabel('Samples', fontsize=11)
 ax.set_ylabel('Distance', fontsize=11)
@@ -104,5 +83,5 @@ fig.text(0.98, 0.5, legend_text, transform=fig.transFigure,
          bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.8))
 
 plt.tight_layout(rect=[0, 0, 0.85, 1])  # leave room for legend on the right
-plt.savefig('gene_hierarchy_with_distances.png', dpi=150, bbox_inches='tight')
+plt.savefig('output.png', dpi=150, bbox_inches='tight')
 plt.show()
